@@ -4,8 +4,8 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.KeyEvent;
 
-// import com.github.kwhat.jnativehook.GlobalScreen;
-// import com.github.kwhat.jnativehook.NativeHookException;
+import com.github.kwhat.jnativehook.GlobalScreen;
+import com.github.kwhat.jnativehook.NativeHookException;
 
 
 public class App 
@@ -27,7 +27,7 @@ public class App
         }
 
         GlobalScreen.addNativeKeyListener(new KeyboardListener());
-        // SystemTrayManager systemTrayManager = new SystemTrayManager(toolkit);
+        SystemTrayManager systemTrayManager = new SystemTrayManager();
     }
 
     public static void despacito() {

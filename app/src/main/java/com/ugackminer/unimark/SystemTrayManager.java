@@ -1,53 +1,51 @@
 package com.ugackminer.unimark;
 
-import java.awt.AWTException;
-import java.awt.Image;
-import java.awt.MenuItem;
-import java.awt.PopupMenu;
-import java.awt.SystemTray;
-import java.awt.Toolkit;
-import java.awt.TrayIcon;
-import java.awt.event.ActionEvent;
+import java.net.URL;
+
+import javax.swing.UIManager;
+
 import java.awt.event.ActionListener;
+
+import dorkbox.systemTray.Menu;
+import dorkbox.systemTray.MenuItem;
+import dorkbox.systemTray.SystemTray;
+import dorkbox.systemTray.SystemTray.TrayType;
 
 public class SystemTrayManager {
     
-    SystemTray systemTray;
+    static final URL markdownImage = SystemTrayManager.class.getResource("/markdown-mark.png");
 
-    public SystemTrayManager(Toolkit toolkit) {
-        if (!SystemTray.isSupported()) {
-            System.err.println("System tray is not supported!");
+    SystemTray systemTray;
+    
+    public SystemTrayManager() {
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception ex) {}
+
+        this.systemTray = SystemTray.get("Unimark");
+        if (systemTray == null) {
             return;
         }
 
-        this.systemTray = SystemTray.getSystemTray();
-        PopupMenu popupMenu = new PopupMenu();
-        Image icon = toolkit.getImage("icon-128.gif");
+        systemTray.setTooltip("Unimark");
+        systemTray.setStatus(null);
+        systemTray.setImage(markdownImage);
 
+        Menu mainMenu = systemTray.getMenu();
 
-        // MenuItem action = new MenuItem("Action");
-        // action.addActionListener(actionClicked); 
-        
-        // popupMenu.add(action);
+        MenuItem menuEntry = new MenuItem("Menu Item", e -> {
+            final MenuItem entry = (MenuItem) e.getSource();
 
-        TrayIcon trayIcon = new TrayIcon(icon, "Markdown", popupMenu);
-        trayIcon.setImageAutoSize(true);
-        trayIcon.addActionListener(actionClicked);
-
-        try {
-            systemTray.add(trayIcon);
-        } catch (AWTException err) {
-            System.err.println("Could not add system tray icon.");
-            System.err.println(err);
-        }
+            entry.setCallback(menuEntryCallback);
+            entry.setTooltip(null); // remove the tooltip
+        });
+        mainMenu.add(menuEntry);
     }
 
-    ActionListener actionClicked = new ActionListener() {
-        @Override public void actionPerformed(ActionEvent event) {
-            System.out.println("Action clicked");
-        }
-    };
 
+    ActionListener menuEntryCallback = e -> {
+        System.out.println("Menu Entry Clicked");
+    };
 
 
 }
