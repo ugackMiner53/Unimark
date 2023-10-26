@@ -25,12 +25,25 @@ public class ClipboardManager
         }
     }
 
+    public String getClipboardHtmlText() {
+        try {
+            return (String)this.getClipboardTransferable().getTransferData(DataFlavor.allHtmlFlavor);
+        } catch (Exception err) {
+            return null;
+        }
+    }
+
     public void setClipboardTransferable(Transferable newContents) {
         this.clipboard.setContents(newContents, null);
     }
 
     public void setClipboardText(String text) {
         StringSelection clipboardSelection = new StringSelection(text);
+        this.clipboard.setContents(clipboardSelection, null);
+    }
+
+    public void setClipboardText(String htmlText, String text) {
+        HtmlSelection clipboardSelection = new HtmlSelection(htmlText, text);
         this.clipboard.setContents(clipboardSelection, null);
     }
 

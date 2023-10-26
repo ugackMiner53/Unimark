@@ -27,10 +27,14 @@ public class App
         }
 
         GlobalScreen.addNativeKeyListener(new KeyboardListener());
-        SystemTrayManager systemTrayManager = new SystemTrayManager();
+        // SystemTrayManager systemTrayManager = new SystemTrayManager();
     }
 
-    public static void despacito() {
+    /**
+     * Presses keyboard shortcuts in order to copy the current text to the clipboard,
+     * convert the markdown, and paste it back into the textbox.
+     */
+    public static void startRobotConversion() {
         robotManager.robot.keyRelease(KeyEvent.VK_CONTROL);
         robotManager.robot.keyRelease(KeyEvent.VK_M);
 
@@ -39,12 +43,31 @@ public class App
         robotManager.pressShortcut(KeyEvent.VK_A);
         robotManager.pressShortcut(KeyEvent.VK_X);
 
-        String clipboardText = clipboardManager.getClipboardText();
-        clipboardText = MarkdownParser.parseMarkdown(clipboardText);
-        clipboardManager.setClipboardText(clipboardText);
+        App.startClipboardConversion();
 
         robotManager.pressShortcut(KeyEvent.VK_V);
 
         clipboardManager.setClipboardTransferable(previousClipboardContent);
+    }
+
+    /**
+     * Takes text on the clipboard and runs it through the formatter,
+     * then places it back on the clipboard
+     */
+    public static void startClipboardConversion() {
+        String clipboardText = clipboardManager.getClipboardText();
+        String clipboardHtml = clipboardManager.getClipboardHtmlText();
+        System.out.println(clipboardHtml);
+        System.out.println(clipboardText);
+        System.out.println("");
+        if (clipboardHtml != null && !clipboardHtml.equals(clipboardText))
+            clipboardHtml = MarkdownParser.parseMarkdown(clipboardHtml);
+        else
+            clipboardHtml = clipboardText;
+        clipboardText = MarkdownParser.parseMarkdown(clipboardText);
+        System.out.println(clipboardHtml);
+        System.out.println(clipboardText);
+        System.out.println("");
+        clipboardManager.setClipboardText(clipboardHtml, clipboardText);
     }
 }
