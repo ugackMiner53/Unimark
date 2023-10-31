@@ -43,4 +43,14 @@ public class UnicodeConverter {
 
         return builder.toString();
     }
+
+    public static String convertToUnderline(String text) {
+        StringBuilder builder = new StringBuilder(text.length()*2);
+
+        for (char character : text.toCharArray()) {
+            builder.append(character);
+            builder.append("\u035F");
+        }
+        return builder.toString();
+    }
 }

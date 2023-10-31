@@ -6,12 +6,14 @@ import java.util.regex.Pattern;
 
 public class MarkdownParser {
 
-    static Pattern boldPattern = Pattern.compile("(?!\\\\)\\*\\*.*?[^\\\\]\\*\\*");
-    static Pattern italicPattern = Pattern.compile("(?!\\\\)\\*.*?[^\\\\]\\*");
+    static final Pattern boldPattern = Pattern.compile("(?!\\\\)\\*\\*.*?[^\\\\]\\*\\*");
+    static final Pattern italicPattern = Pattern.compile("(?!\\\\)\\*.*?[^\\\\]\\*");
+    static final Pattern underlinePattern = Pattern.compile("(?!\\\\)__.*?[^\\\\]__");
 
     public static String parseMarkdown(String input) {
-        input = parsePattern(boldPattern, input, 2, UnicodeConverter::convertToBold);
-        input = parsePattern(italicPattern, input, 1, UnicodeConverter::convertToItalic);
+        input = parsePattern(boldPattern, input, UnicodeConverter::convertToBold, 2);
+        input = parsePattern(italicPattern, input, UnicodeConverter::convertToItalic, 1);
+        input = parsePattern(underlinePattern, input, UnicodeConverter::convertToUnderline, 2);
         return input;
     }
 
@@ -21,17 +23,17 @@ public class MarkdownParser {
      * 
      * @param pattern The Regex pattern that the function tries to parse
      * @param input The input string that the function parses
-     * @param outliners The number of characters to trim from the beginning and end of the string
      * @param conversionFunction The function that takes in matched patterns and converts them to special Unicode characters 
+     * @param trim The number of characters to trim from the beginning and end of the string
      * @return A new String with the outputs of the conversionFunction applied to each 
      */
-    private static String parsePattern(Pattern pattern, String input, int outliners, UnicodeMethod conversionFunction) {
+    private static String parsePattern(Pattern pattern, String input, UnicodeMethod conversionFunction, int trim) {
         Matcher matcher = pattern.matcher(input);
         StringBuffer result = new StringBuffer(input.length());
 
         while (matcher.find()) {
             matcher.appendReplacement(result, "");
-            result.append(conversionFunction.convert(matcher.group(0).substring(outliners, matcher.group(0).length() - outliners)));
+            result.append(conversionFunction.convert(matcher.group(0).substring(trim, matcher.group(0).length() - trim)));
         }
         matcher.appendTail(result);
         return result.toString();
@@ -43,7 +45,7 @@ public class MarkdownParser {
      * @see MarkdownParser#parsePattern(Pattern, String, int, UnicodeMethod)
      */
     private static String parsePattern(Pattern pattern, String input, UnicodeMethod conversionFunction) {
-        return parsePattern(pattern, input, 0, conversionFunction);
+        return parsePattern(pattern, input, conversionFunction, 0);
     }
 }
 

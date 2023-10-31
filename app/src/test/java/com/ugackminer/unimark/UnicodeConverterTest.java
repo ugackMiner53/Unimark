@@ -21,4 +21,9 @@ public class UnicodeConverterTest {
         assertEquals("𝘢𝘣𝘤𝘥𝘦𝘧𝘨𝘩𝘪𝘫𝘬𝘭𝘮𝘯𝘰𝘱𝘲𝘳𝘴𝘵𝘶𝘷𝘸𝘹𝘺𝘻", UnicodeConverter.convertToItalic(LOWERCASE_STRING));
     }
 
+    @Test void underlineConversionTest() {
+        assertEquals("A͟B͟C͟D͟E͟F͟G͟H͟I͟J͟K͟L͟M͟N͟O͟P͟Q͟R͟S͟T͟U͟V͟W͟X͟Y͟Z͟", UnicodeConverter.convertToUnderline(UPPERCASE_STRING));
+        assertEquals("a͟b͟c͟d͟e͟f͟g͟h͟i͟j͟k͟l͟m͟n͟o͟p͟q͟r͟s͟t͟u͟v͟w͟x͟y͟z͟", UnicodeConverter.convertToUnderline(LOWERCASE_STRING));
+        assertEquals("0͟1͟2͟3͟4͟5͟6͟7͟8͟9͟", UnicodeConverter.convertToUnderline(NUMERICAL_STRING));
+    }
 }
