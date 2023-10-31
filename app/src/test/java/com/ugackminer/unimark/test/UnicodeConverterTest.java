@@ -1,7 +1,8 @@
-package com.ugackminer.unimark;
+package com.ugackminer.unimark.test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import com.ugackminer.unimark.UnicodeConverter;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 
 public class UnicodeConverterTest {
