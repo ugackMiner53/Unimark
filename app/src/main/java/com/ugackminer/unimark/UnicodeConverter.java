@@ -66,9 +66,29 @@ public class UnicodeConverter {
         return builder.toString();
     }
 
-    
+    /**
+     * Takes in a String and converts all letters
+     * to be in the {@code MATHEMATICAL CURSIVE} Unicode range ({@code U+1D49C}/{@code U+1D4CF})
+     * @param text The input string
+     * @return The cursive version of the string
+     */
     public static String convertToCursive(String text) {
-        return text;
+        StringBuilder builder = new StringBuilder(text.length());
+
+        for (char character : text.toCharArray()) {
+            if (Character.isAlphabetic(character)) {
+                if ("BEFHILMRego".indexOf(character) != -1) {
+                    builder.append(character);
+                    // builder.append(Character.toChars(character + (0x1D48F + (Character.isUpperCase(character) ? 6 : 0))));
+                } else {
+                    builder.append(Character.toChars(character + (0x1D455 + (Character.isUpperCase(character) ? 6 : 0))));
+                }
+            } else {
+                builder.append(character);
+            }
+        }
+
+        return builder.toString();
     }
 
 
@@ -83,7 +103,7 @@ public class UnicodeConverter {
 
         for (char character : text.toCharArray()) {
             builder.append(character);
-            if (Character.UnicodeBlock.of(character) == Character.UnicodeBlock.BASIC_LATIN) {
+            if (character < 128) {
                 builder.append("\u035F");
             }
         }
