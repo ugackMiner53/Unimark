@@ -79,6 +79,7 @@ public class UnicodeConverter {
             if (Character.isAlphabetic(character)) {
                 if ("BEFHILMRego".indexOf(character) != -1) {
                     builder.append(character);
+                    // The below line converts the cursive to the SCRIPT range, which works, but this has the wrong offset for some reason...
                     // builder.append(Character.toChars(character + (0x1D48F + (Character.isUpperCase(character) ? 6 : 0))));
                 } else {
                     builder.append(Character.toChars(character + (0x1D455 + (Character.isUpperCase(character) ? 6 : 0))));
@@ -99,13 +100,15 @@ public class UnicodeConverter {
      * @return The underlined version of the string
      */
     public static String convertToUnderline(String text) {
-        StringBuilder builder = new StringBuilder(text.length()*2);
+        StringBuilder builder = new StringBuilder(text.length()*3);
 
-        for (char character : text.toCharArray()) {
-            builder.append(character);
-            if (character < 128) {
-                builder.append("\u035F");
-            }
+        // We may want to separate this logic into it's own method
+        // Constantly using the same code for unichar conversion is not great
+        for (int i = 0; i < text.length();) {
+            int character = text.codePointAt(i);
+            builder.append(Character.toChars(character));
+            builder.append("\u035F");
+            i += Character.charCount(character);
         }
         return builder.toString();
     }
