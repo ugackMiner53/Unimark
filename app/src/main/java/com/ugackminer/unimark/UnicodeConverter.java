@@ -3,6 +3,17 @@ package com.ugackminer.unimark;
 public class UnicodeConverter {
     
     /**
+     * Takes in a String and converts all special character types (bold, italic, etc.)
+     * into the regular text block.
+     * @param text The input string
+     * @return A string without fancy text.
+     */
+    public static String convertToASCII(String text) throws Exception {
+        throw new Exception("Method not implemented");
+        // return text;
+    }
+
+    /**
      * Takes in a String and converts all alphanumeric characters 
      * to be in the {@code MATHEMATICAL BOLD SANS-SERIF} Unicode range ({@code U+1D622}/{@code U+1D6E2}).
      * @param text The input string
@@ -42,6 +53,10 @@ public class UnicodeConverter {
         }
 
         return builder.toString();
+    }
+
+    public static String convertToBoldItalics() throws Exception {
+        throw new Exception("Not implemented");
     }
 
     /**
@@ -114,7 +129,8 @@ public class UnicodeConverter {
     }
 
 
-    public static String convertToStrikethrough(String text) {
-        return text;
+    public static String convertToStrikethrough(String text) throws Exception {
+        throw new Exception("Not implemented");
+        // return text;
     }
 }

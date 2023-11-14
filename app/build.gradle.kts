@@ -24,6 +24,7 @@ dependencies {
     // This dependency is used by the application.
     // implementation("com.google.guava:guava:32.1.1-jre")
     implementation("com.github.kwhat:jnativehook:2.2.2")
+    implementation("com.squareup.moshi:moshi:1.14.0")
     // implementation("com.dorkbox:SystemTray:4.4")
 }
 
