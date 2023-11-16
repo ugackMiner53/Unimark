@@ -14,6 +14,7 @@ public class App
     static Toolkit toolkit = Toolkit.getDefaultToolkit();
     static ClipboardManager clipboardManager = new ClipboardManager(toolkit.getSystemClipboard());
     static RobotManager robotManager = new RobotManager();
+    static ShortcodeConverter shortcodeConverter = new ShortcodeConverter();
 
     public static void main(String[] args) {
         System.out.println(System.getProperty("os.name"));

@@ -6,12 +6,14 @@ import java.util.regex.Pattern;
 
 public class MarkdownParser {
 
+    static final Pattern shortcodePattern = Pattern.compile("(?<!\\\\):.*?[^\\\\]:");
     static final Pattern boldPattern = Pattern.compile("(?<!\\\\)\\*\\*.*?[^\\\\]\\*\\*");
     static final Pattern italicPattern = Pattern.compile("(?<!\\\\)\\*.*?[^\\\\]\\*");
     static final Pattern underlinePattern = Pattern.compile("(?<!\\\\)__.*?[^\\\\]__");
     static final Pattern monospacePattern = Pattern.compile("(?<!\\\\)`.*?[^\\\\]`");
 
     public static String parseMarkdown(String input) {
+        input = parsePattern(shortcodePattern, input, App.shortcodeConverter::convertShortcode, 1);
         input = parsePattern(boldPattern, input, UnicodeConverter::convertToBold, 2);
         input = parsePattern(italicPattern, input, UnicodeConverter::convertToItalic, 1);
         input = parsePattern(underlinePattern, input, UnicodeConverter::convertToUnderline, 2);

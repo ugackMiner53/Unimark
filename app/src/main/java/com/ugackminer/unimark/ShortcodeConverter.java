@@ -2,6 +2,7 @@ package com.ugackminer.unimark;
 
 import java.net.URL;
 import java.util.Map;
+import java.util.HashMap;
 import java.io.IOException;
 import java.io.File;
 import java.io.FileInputStream;
@@ -19,14 +20,19 @@ public class ShortcodeConverter {
     
     Map<String, String> shortcodeMap; 
 
-    public ShortcodeConverter() throws IOException {
+    public ShortcodeConverter() {
         Moshi moshi = new Moshi.Builder().build();
         JsonAdapter<Map<String, String>> adapter = moshi.adapter(Types.newParameterizedType(Map.class, String.class, String.class));
 
         InputStream inputStream = ShortcodeConverter.class.getResourceAsStream(SHORTCODE_FILE);
         JsonReader reader = JsonReader.of(Okio.buffer(Okio.source(inputStream)));
 
-        this.shortcodeMap = adapter.fromJson(reader);
+        try {
+            this.shortcodeMap = adapter.fromJson(reader);
+        } catch (IOException err) {
+            this.shortcodeMap = new HashMap<String, String>();
+            System.err.println(err);
+        }
     }
 
     /**
@@ -35,8 +41,8 @@ public class ShortcodeConverter {
      * @return A String containing the Unicode character or null if the shortcode is not found
      */
     public String convertShortcode(String shortcode) { 
-        if (!shortcodeMap.containsKey(shortcode)) return null;
-        String[] unicodeCodeStrings = shortcodeMap.get(shortcode).split("-");
+        if (!shortcodeMap.containsKey(shortcode.toLowerCase())) return String.format(":%s:", shortcode);
+        String[] unicodeCodeStrings = shortcodeMap.get(shortcode.toLowerCase()).split("-");
         StringBuilder output = new StringBuilder();
         
         for (String unicodeCodeString : unicodeCodeStrings) {
