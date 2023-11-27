@@ -44,3 +44,31 @@ tasks.named<Test>("test") {
     // Use JUnit Platform for unit tests.
     useJUnitPlatform()
 }
+
+fun download(url : String, path : String) {
+    val destFile = File(path)
+    ant.invokeMethod("get", mapOf("src" to url, "dest" to destFile))
+}
+
+// tasks.register<Copy>("copy") {
+//    from("app/src/main/resources")
+//    into("target")
+//    include("**/*.json")
+// }
+
+tasks.register("updateShortcodes"){
+    val resourcesDir = sourceSets.main.get().getResources().getSrcDirs().iterator().next()
+    val sourceUrl = "https://raw.githubusercontent.com/milesj/emojibase/master/packages/data/en/shortcodes/emojibase.raw.json"
+
+
+    // val moshi : Moshi = Moshi.Builder().build()
+    // val jsonAdapter : JSONAdapter<String> = 
+
+
+    download(sourceUrl, resourcesDir.getPath() + "/test.json")
+}
+
+// tasks.register("updateShortcodes") {
+//     src("https://raw.githubusercontent.com/milesj/emojibase/master/packages/data/en/shortcodes/emojibase.raw.json");
+//     dest(new File(buildDir, "test.json"));
+// }
