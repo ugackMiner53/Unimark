@@ -5,6 +5,14 @@
  * For more details on building Java & JVM projects, please refer to https://docs.gradle.org/8.4/userguide/building_java_projects.html in the Gradle documentation.
  */
 
+import java.net.URI
+import java.net.http.HttpClient
+import java.net.http.HttpRequest
+import java.net.http.HttpResponse
+
+import groovy.json.JsonSlurper
+import groovy.json.JsonOutput
+
 plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
     application
@@ -25,6 +33,7 @@ dependencies {
     // implementation("com.google.guava:guava:32.1.1-jre")
     implementation("com.github.kwhat:jnativehook:2.2.2")
     implementation("com.squareup.moshi:moshi:1.14.0")
+    
     // implementation("com.dorkbox:SystemTray:4.4")
 }
 
@@ -45,30 +54,31 @@ tasks.named<Test>("test") {
     useJUnitPlatform()
 }
 
-fun download(url : String, path : String) {
-    val destFile = File(path)
-    ant.invokeMethod("get", mapOf("src" to url, "dest" to destFile))
-}
-
-// tasks.register<Copy>("copy") {
-//    from("app/src/main/resources")
-//    into("target")
-//    include("**/*.json")
-// }
-
 tasks.register("updateShortcodes"){
-    val resourcesDir = sourceSets.main.get().getResources().getSrcDirs().iterator().next()
-    val sourceUrl = "https://raw.githubusercontent.com/milesj/emojibase/master/packages/data/en/shortcodes/emojibase.raw.json"
+    doLast {
+        val resourcesDir = sourceSets.main.get().getResources().getSrcDirs().iterator().next()
+        val sourceUrl = "https://raw.githubusercontent.com/milesj/emojibase/master/packages/data/en/shortcodes/emojibase.raw.json"
 
+        val client = HttpClient.newBuilder().build();
+        val request = HttpRequest.newBuilder().uri(URI.create(sourceUrl)).build();
+            
+        val response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-    // val moshi : Moshi = Moshi.Builder().build()
-    // val jsonAdapter : JSONAdapter<String> = 
+        val shortcodes = JsonSlurper().parseText(response.body()) as Map<String, Any>
+        val reversedShortcodes = mutableMapOf<String, String>()
 
+        shortcodes.forEach { (key, value) ->
+            if (value is ArrayList<*>) {
+                for (singleValue in value) {
+                    reversedShortcodes[singleValue as String] = key
+                }
+            } else {
+                reversedShortcodes[value as String] = key
+            }
+        }
 
-    download(sourceUrl, resourcesDir.getPath() + "/test.json")
+        val reversedShortcodesJson = JsonOutput.prettyPrint(JsonOutput.toJson(reversedShortcodes))
+
+        File(resourcesDir.getPath() + "/shortcodes.json").writeText(reversedShortcodesJson)
+    }
 }
-
-// tasks.register("updateShortcodes") {
-//     src("https://raw.githubusercontent.com/milesj/emojibase/master/packages/data/en/shortcodes/emojibase.raw.json");
-//     dest(new File(buildDir, "test.json"));
-// }
