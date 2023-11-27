@@ -1,4 +1,4 @@
-package com.ugackminer.unimark;
+package com.ugackminer.unimark.robot;
 
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;

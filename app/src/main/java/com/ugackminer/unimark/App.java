@@ -7,14 +7,20 @@ import java.awt.event.KeyEvent;
 import com.github.kwhat.jnativehook.GlobalScreen;
 import com.github.kwhat.jnativehook.NativeHookException;
 
+import com.ugackminer.unimark.robot.ClipboardManager;
+import com.ugackminer.unimark.robot.KeyboardListener;
+import com.ugackminer.unimark.robot.RobotManager;
+import com.ugackminer.unimark.unicode.MarkdownParser;
+
 
 public class App 
 {
-    static final boolean isOnMacOS = System.getProperty("os.name").toLowerCase().contains("mac");
+    public static final boolean isOnMacOS = System.getProperty("os.name").toLowerCase().contains("mac");
+    
     static Toolkit toolkit = Toolkit.getDefaultToolkit();
+
     static ClipboardManager clipboardManager = new ClipboardManager(toolkit.getSystemClipboard());
     static RobotManager robotManager = new RobotManager();
-    static ShortcodeConverter shortcodeConverter = new ShortcodeConverter();
 
     public static void main(String[] args) {
         System.out.println(System.getProperty("os.name"));

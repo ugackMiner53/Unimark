@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-import com.ugackminer.unimark.ShortcodeConverter;
+import com.ugackminer.unimark.unicode.ShortcodeConverter;
 
 public class ShortcodeTest {
     

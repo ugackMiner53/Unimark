@@ -1,5 +1,4 @@
-package com.ugackminer.unimark;
-// import java.util.regex.;
+package com.ugackminer.unimark.unicode;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -12,8 +11,10 @@ public class MarkdownParser {
     static final Pattern underlinePattern = Pattern.compile("(?<!\\\\)__.*?[^\\\\]__");
     static final Pattern monospacePattern = Pattern.compile("(?<!\\\\)`.*?[^\\\\]`");
 
+    static ShortcodeConverter shortcodeConverter = new ShortcodeConverter();
+
     public static String parseMarkdown(String input) {
-        input = parsePattern(shortcodePattern, input, App.shortcodeConverter::convertShortcode, 1);
+        input = parsePattern(shortcodePattern, input, shortcodeConverter::convertShortcode, 1);
         input = parsePattern(boldPattern, input, UnicodeConverter::convertToBold, 2);
         input = parsePattern(italicPattern, input, UnicodeConverter::convertToItalic, 1);
         input = parsePattern(underlinePattern, input, UnicodeConverter::convertToUnderline, 2);

@@ -1,4 +1,4 @@
-package com.ugackminer.unimark;
+package com.ugackminer.unimark.tray;
 
 import java.awt.Image;
 import java.awt.SystemTray;

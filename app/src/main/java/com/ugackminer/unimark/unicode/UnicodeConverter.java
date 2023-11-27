@@ -1,4 +1,4 @@
-package com.ugackminer.unimark;
+package com.ugackminer.unimark.unicode;
 
 public class UnicodeConverter {
     

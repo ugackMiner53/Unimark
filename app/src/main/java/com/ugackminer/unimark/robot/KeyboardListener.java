@@ -1,7 +1,8 @@
-package com.ugackminer.unimark;
+package com.ugackminer.unimark.robot;
 
 import com.github.kwhat.jnativehook.keyboard.NativeKeyEvent;
 import com.github.kwhat.jnativehook.keyboard.NativeKeyListener;
+import com.ugackminer.unimark.App;
 
 public class KeyboardListener implements NativeKeyListener
 {

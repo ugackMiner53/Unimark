@@ -1,11 +1,8 @@
-package com.ugackminer.unimark;
+package com.ugackminer.unimark.unicode;
 
-import java.net.URL;
 import java.util.Map;
 import java.util.HashMap;
 import java.io.IOException;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 
 import com.squareup.moshi.JsonAdapter;
@@ -51,10 +48,4 @@ public class ShortcodeConverter {
         }
         return output.toString();
     }
-
-
-
-
-
-
 }
