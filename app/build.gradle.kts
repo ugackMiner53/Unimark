@@ -47,6 +47,11 @@ java {
 application {
     // Define the main class for the application.
     mainClass.set("com.ugackminer.unimark.App")
+
+    if (!File(sourceSets.main.get().getResources().getSrcDirs().iterator().next().getPath() + "/shortcodes.json").exists()) {
+        println("shortcodes.json does not exist!\nDownloading from emojibase...")
+        updateShortcodes()
+    }
 }
 
 tasks.named<Test>("test") {
@@ -54,31 +59,35 @@ tasks.named<Test>("test") {
     useJUnitPlatform()
 }
 
+fun updateShortcodes() {
+    val resourcesDir = sourceSets.main.get().getResources().getSrcDirs().iterator().next()
+    val sourceUrl = "https://raw.githubusercontent.com/milesj/emojibase/master/packages/data/en/shortcodes/emojibase.raw.json"
+
+    val client = HttpClient.newBuilder().build();
+    val request = HttpRequest.newBuilder().uri(URI.create(sourceUrl)).build();
+        
+    val response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+    val shortcodes = JsonSlurper().parseText(response.body()) as Map<String, Any>
+    val reversedShortcodes = mutableMapOf<String, String>()
+
+    shortcodes.forEach { (key, value) ->
+        if (value is ArrayList<*>) {
+            for (singleValue in value) {
+                reversedShortcodes[singleValue as String] = key
+            }
+        } else {
+            reversedShortcodes[value as String] = key
+        }
+    }
+
+    val reversedShortcodesJson = JsonOutput.prettyPrint(JsonOutput.toJson(reversedShortcodes))
+
+    File(resourcesDir.getPath() + "/shortcodes.json").writeText(reversedShortcodesJson)
+}
+
 tasks.register("updateShortcodes"){
     doLast {
-        val resourcesDir = sourceSets.main.get().getResources().getSrcDirs().iterator().next()
-        val sourceUrl = "https://raw.githubusercontent.com/milesj/emojibase/master/packages/data/en/shortcodes/emojibase.raw.json"
-
-        val client = HttpClient.newBuilder().build();
-        val request = HttpRequest.newBuilder().uri(URI.create(sourceUrl)).build();
-            
-        val response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-        val shortcodes = JsonSlurper().parseText(response.body()) as Map<String, Any>
-        val reversedShortcodes = mutableMapOf<String, String>()
-
-        shortcodes.forEach { (key, value) ->
-            if (value is ArrayList<*>) {
-                for (singleValue in value) {
-                    reversedShortcodes[singleValue as String] = key
-                }
-            } else {
-                reversedShortcodes[value as String] = key
-            }
-        }
-
-        val reversedShortcodesJson = JsonOutput.prettyPrint(JsonOutput.toJson(reversedShortcodes))
-
-        File(resourcesDir.getPath() + "/shortcodes.json").writeText(reversedShortcodesJson)
+        updateShortcodes()
     }
 }
