@@ -5,8 +5,8 @@ public class UnicodeConverter {
     /**
      * Takes in a String and converts all special character types (bold, italic, etc.)
      * into the regular text block.
-     * @param text The input string
-     * @return A string without fancy text.
+     * @param text The input String
+     * @return A String without fancy text.
      */
     public static String convertToASCII(String text) throws Exception {
         throw new Exception("Method not implemented");
@@ -16,8 +16,8 @@ public class UnicodeConverter {
     /**
      * Takes in a String and converts all alphanumeric characters 
      * to be in the {@code MATHEMATICAL BOLD SANS-SERIF} Unicode range ({@code U+1D622}/{@code U+1D6E2}).
-     * @param text The input string
-     * @return The bolded version of the string
+     * @param text The input String
+     * @return The bolded version of the String
      */
     public static String convertToBold(String text) {
         StringBuilder builder = new StringBuilder(text.length());
@@ -38,8 +38,8 @@ public class UnicodeConverter {
     /**
      * Takes in a String and converts all letters 
      * to be in the {@code MATHEMATICAL ITALIC SANS-SERIF} Unicode range ({@code U+1D608}/{@code U+1D622}).
-     * @param text The input string
-     * @return The italicized version of the string
+     * @param text The input String
+     * @return The italicized version of the String
      */
     public static String convertToItalic(String text) {
         StringBuilder builder = new StringBuilder(text.length());
@@ -62,8 +62,8 @@ public class UnicodeConverter {
     /**
      * Takes in a String and converts all letters
      * to be in the {@code MATHEMATICAL MONOSPACE} Unicode range ({@code U+1D670}/{@code U+1D7F6})
-     * @param text The input string
-     * @return The monospaced version of the string
+     * @param text The input String
+     * @return The monospaced version of the String
      */    
     public static String convertToMonospace(String text) {
         StringBuilder builder = new StringBuilder(text.length());
@@ -84,8 +84,8 @@ public class UnicodeConverter {
     /**
      * Takes in a String and converts all letters
      * to be in the {@code MATHEMATICAL CURSIVE} Unicode range ({@code U+1D49C}/{@code U+1D4CF})
-     * @param text The input string
-     * @return The cursive version of the string
+     * @param text The input String
+     * @return The cursive version of the String
      */
     public static String convertToCursive(String text) {
         StringBuilder builder = new StringBuilder(text.length());
@@ -109,10 +109,10 @@ public class UnicodeConverter {
 
 
     /**
-     * Takes in a string and puts {@code U+035F} after every alphanumeric character
-     * in order to make an underlined string.
-     * @param text The input string
-     * @return The underlined version of the string
+     * Takes in a string and puts {@code U+035F} after every character 
+     * in order to make an underlined String.
+     * @param text The input String
+     * @return The underlined version of the String
      */
     public static String convertToUnderline(String text) {
         StringBuilder builder = new StringBuilder(text.length()*3);
@@ -128,9 +128,21 @@ public class UnicodeConverter {
         return builder.toString();
     }
 
+    /**
+     * Takes in a string and puts {@code U+0336} after every character
+     * in order to make a strikethrough String
+     * @param text The input String
+     * @return The underlined version of the String
+     */
+    public static String convertToStrikethrough(String text) {
+        StringBuilder builder = new StringBuilder(text.length()*2);
 
-    public static String convertToStrikethrough(String text) throws Exception {
-        throw new Exception("Not implemented");
-        // return text;
+        for (int i=0; i<text.length();) {
+            int character = text.codePointAt(i);
+            builder.append(Character.toChars(character));
+            builder.append("\u0336");
+            i += Character.charCount(character);
+        }
+        return builder.toString();
     }
 }
