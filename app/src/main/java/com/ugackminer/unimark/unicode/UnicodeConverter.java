@@ -21,14 +21,20 @@ public class UnicodeConverter {
      */
     public static String convertToBold(String text) {
         StringBuilder builder = new StringBuilder(text.length());
+        char[] characters = text.toCharArray();
+        int characterCode;        
 
-        for (char character : text.toCharArray()) {
-            if (Character.isAlphabetic(character)) {
-                builder.append(Character.toChars(character + (120205 + (Character.isUpperCase(character) ? 6 : 0))));
-            } else if (Character.isDigit(character)) {
-                builder.append(Character.toChars(character + 120764));
+        for (int i=0; i<characters.length; i++) {
+            if (Character.isAlphabetic(characters[i])) {
+                builder.append(Character.toChars(characters[i] + (0x1D58D + (Character.isUpperCase(characters[i]) ? 6 : 0))));
+            } else if (Character.isDigit(characters[i])) {
+                builder.append(Character.toChars(characters[i] + 0x1D7BC));
+            } else if (((characterCode = text.codePointAt(i)) != 0) && (characterCode >= 0x1D608 && characterCode <= 0x1D63B)) { 
+                // If the integer chars at i in the string are between 𝘈 and 𝘻 then make it bold+italics
+                builder.append(Character.toChars(characterCode + 0x34));
+                i += Character.charCount(characterCode)-1;
             } else {
-                builder.append(character);
+                builder.append(characters[i]);
             }
         }
 
@@ -43,12 +49,18 @@ public class UnicodeConverter {
      */
     public static String convertToItalic(String text) {
         StringBuilder builder = new StringBuilder(text.length());
+        char[] characters = text.toCharArray();
+        int characterCode;
 
-        for (char character : text.toCharArray()) {
-            if (Character.isAlphabetic(character)) {
-                builder.append(Character.toChars(character + (0x1D5C1 + (Character.isUpperCase(character) ? 6 : 0)))); // 0x1D5C1 lowercase vs 0x1D5C7
+        for (int i=0; i<characters.length; i++) {
+            if (Character.isAlphabetic(characters[i])) {
+                builder.append(Character.toChars(characters[i] + (0x1D5C1 + (Character.isUpperCase(characters[i]) ? 6 : 0))));
+            } else if (((characterCode = text.codePointAt(i)) != 0) && (characterCode >= 0x1D5D4 && characterCode <= 0x1D607)) { 
+                // If the integer chars at i in the string are between 𝗔 and 𝘇 then make it bold+italics
+                builder.append(Character.toChars(characterCode + 0x68));
+                i += Character.charCount(characterCode)-1;
             } else {
-                builder.append(character);
+                builder.append(characters[i]);
             }
         }
 
