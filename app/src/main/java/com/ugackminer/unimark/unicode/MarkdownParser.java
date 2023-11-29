@@ -11,6 +11,7 @@ public class MarkdownParser {
     static final Pattern underlinePattern = Pattern.compile("(?<!\\\\)__.*?[^\\\\]__");
     static final Pattern strikethroughPattern = Pattern.compile("(?<!\\\\)~~.*?[^\\\\]~~");
     static final Pattern monospacePattern = Pattern.compile("(?<!\\\\)`.*?[^\\\\]`");
+    static final Pattern cursivePattern = Pattern.compile("(?<!\\\\)~.*?[^\\\\]~");
 
     static ShortcodeConverter shortcodeConverter = new ShortcodeConverter();
 
@@ -21,6 +22,7 @@ public class MarkdownParser {
         input = parsePattern(underlinePattern, input, UnicodeConverter::convertToUnderline, 2);
         input = parsePattern(strikethroughPattern, input, UnicodeConverter::convertToStrikethrough, 2);
         input = parsePattern(monospacePattern, input, UnicodeConverter::convertToMonospace, 1);
+        input = parsePattern(cursivePattern, input, UnicodeConverter::convertToCursive, 1);
         // Remove backslashes here
         return input;
     }

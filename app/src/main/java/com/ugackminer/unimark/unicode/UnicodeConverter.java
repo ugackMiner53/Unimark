@@ -105,7 +105,43 @@ public class UnicodeConverter {
         for (char character : text.toCharArray()) {
             if (Character.isAlphabetic(character)) {
                 if ("BEFHILMRego".indexOf(character) != -1) {
-                    builder.append(character);
+                    switch (character) {
+                        case 'B':
+                            builder.append((char)0x212C);
+                            break;
+                        case 'E':
+                            builder.append((char)0x2130);
+                            break;
+                        case 'F':
+                            builder.append((char)0x2131);
+                            break;
+                        case 'H':
+                            builder.append((char)0x210B);
+                            break;
+                        case 'I':
+                            builder.append((char)0x2110);
+                            break;
+                        case 'L':
+                            builder.append((char)0x2112);
+                            break;
+                        case 'M':
+                            builder.append((char)0x2133);
+                            break;
+                        case 'R':
+                            builder.append((char)0x211B);
+                            break;
+                        case 'e':
+                            builder.append((char)0x212F);
+                            break;
+                        case 'g':
+                            builder.append((char)0x210a);
+                            break;
+                        case 'o':
+                            builder.append((char)0x2134);
+                            break;
+                        default:
+                            builder.append(character);
+                    }
                     // The below line converts the cursive to the SCRIPT range, which works, but this has the wrong offset for some reason...
                     // builder.append(Character.toChars(character + (0x1D48F + (Character.isUpperCase(character) ? 6 : 0))));
                 } else {
