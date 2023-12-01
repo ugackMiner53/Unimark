@@ -1,40 +1,34 @@
 package com.ugackminer.unimark;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 import java.awt.Toolkit;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.KeyEvent;
-
-import com.github.kwhat.jnativehook.GlobalScreen;
-import com.github.kwhat.jnativehook.NativeHookException;
-
+import java.awt.AWTException;
+import javax.swing.SwingUtilities;
 import com.ugackminer.unimark.robot.ClipboardManager;
-import com.ugackminer.unimark.robot.KeyboardListener;
 import com.ugackminer.unimark.robot.RobotManager;
+import com.ugackminer.unimark.tray.SystemTrayManager;
 import com.ugackminer.unimark.unicode.MarkdownParser;
 
 
 public class App 
 {
     public static final boolean isOnMacOS = System.getProperty("os.name").toLowerCase().contains("mac");
-    
     static Toolkit toolkit = Toolkit.getDefaultToolkit();
-
     static ClipboardManager clipboardManager = new ClipboardManager(toolkit.getSystemClipboard());
     static RobotManager robotManager = new RobotManager();
+    
+    static Timer conversionTimer = new Timer("Conversion Timer");
+    static Transferable previousClipboardContent;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws AWTException {
         System.out.println(System.getProperty("os.name"));
-        
-        try {
-            GlobalScreen.registerNativeHook();
-        } catch (NativeHookException err) {
-            System.err.println("The program could not register the native keybind hooking (jnativehook library issue)!");
-            System.err.println(err.getMessage());
-            System.exit(1);
-        }
-
-        GlobalScreen.addNativeKeyListener(new KeyboardListener());
-        // SystemTrayManager systemTrayManager = new SystemTrayManager();
+        SwingUtilities.invokeLater(() -> {
+            SystemTrayManager systemTrayManager = new SystemTrayManager(toolkit);
+        });
     }
 
     /**
@@ -45,17 +39,29 @@ public class App
         robotManager.robot.keyRelease(KeyEvent.VK_CONTROL);
         robotManager.robot.keyRelease(KeyEvent.VK_M);
 
-        Transferable previousClipboardContent = clipboardManager.getClipboardTransferable();
-
+        App.previousClipboardContent = clipboardManager.getClipboardTransferable();
+        
         robotManager.pressShortcut(KeyEvent.VK_A);
         robotManager.pressShortcut(KeyEvent.VK_X);
 
-        App.startClipboardConversion();
-
-        robotManager.pressShortcut(KeyEvent.VK_V);
-
-        clipboardManager.setClipboardTransferable(previousClipboardContent);
+        conversionTimer.schedule(convertTextTask, 100);
     }
+
+    static TimerTask convertTextTask = new TimerTask() {
+        @Override
+        public void run() {
+            App.startClipboardConversion();
+            robotManager.pressShortcut(KeyEvent.VK_V);
+            conversionTimer.schedule(resetTimerTask, 100);
+        }
+    };
+
+    static TimerTask resetTimerTask = new TimerTask() {
+        @Override
+        public void run() {
+            clipboardManager.setClipboardTransferable(App.previousClipboardContent);
+        }
+    };
 
     /**
      * Takes text on the clipboard and runs it through the formatter,
