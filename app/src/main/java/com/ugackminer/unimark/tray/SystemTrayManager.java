@@ -15,6 +15,8 @@ import java.awt.event.WindowListener;
 import javax.swing.WindowConstants;
 
 import javax.swing.UIManager;
+import javax.swing.JLabel;
+import javax.imageio.ImageIO;
 
 import com.github.kwhat.jnativehook.GlobalScreen;
 import com.github.kwhat.jnativehook.NativeHookException;
@@ -44,20 +46,23 @@ public class SystemTrayManager extends JFrame implements WindowListener {
         defaultItem.addActionListener(menuEntryCallback);
         popup.add(defaultItem);
 
-        TrayIcon trayIcon = new TrayIcon(markdownImage, "Tray Demo", popup);
-
         try {
+            TrayIcon trayIcon = new TrayIcon(ImageIO.read(markdownImageURL), "Tray Demo", popup);
             SystemTray.getSystemTray().add(trayIcon);
-        } catch (AWTException e) {
+        } catch (Exception e) {
             System.err.println(e);
         }
 
-        setTitle("JNativeHook Swing Example");
+        setTitle("Unimark Configuration Window");
 		setSize(300, 150);
 		setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
 		addWindowListener(this);
+        setIconImage(markdownImage);
 		setVisible(true);
-        
+
+
+        JLabel label = new JLabel("Unimark");
+        add(label);
     }
 
     public void windowOpened(WindowEvent e) {

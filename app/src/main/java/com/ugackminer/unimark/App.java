@@ -2,7 +2,10 @@ package com.ugackminer.unimark;
 
 import java.util.Timer;
 import java.util.TimerTask;
-
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.KeyEvent;
@@ -21,7 +24,7 @@ public class App
     static ClipboardManager clipboardManager = new ClipboardManager(toolkit.getSystemClipboard());
     static RobotManager robotManager = new RobotManager();
     
-    static Timer conversionTimer = new Timer("Conversion Timer");
+    static ScheduledExecutorService conversionService = Executors.newScheduledThreadPool(1);
     static Transferable previousClipboardContent;
 
     public static void main(String[] args) throws AWTException {
@@ -44,24 +47,14 @@ public class App
         robotManager.pressShortcut(KeyEvent.VK_A);
         robotManager.pressShortcut(KeyEvent.VK_X);
 
-        conversionTimer.schedule(convertTextTask, 100);
-    }
-
-    static TimerTask convertTextTask = new TimerTask() {
-        @Override
-        public void run() {
+        conversionService.schedule(() -> {
             App.startClipboardConversion();
             robotManager.pressShortcut(KeyEvent.VK_V);
-            conversionTimer.schedule(resetTimerTask, 100);
-        }
-    };
-
-    static TimerTask resetTimerTask = new TimerTask() {
-        @Override
-        public void run() {
-            clipboardManager.setClipboardTransferable(App.previousClipboardContent);
-        }
-    };
+            conversionService.schedule(() -> {
+                clipboardManager.setClipboardTransferable(App.previousClipboardContent);
+            }, 100, TimeUnit.MILLISECONDS);
+        }, 100, TimeUnit.MILLISECONDS);
+    }
 
     /**
      * Takes text on the clipboard and runs it through the formatter,
