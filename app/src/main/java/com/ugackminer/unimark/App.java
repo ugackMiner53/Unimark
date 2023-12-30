@@ -20,6 +20,7 @@ import com.ugackminer.unimark.unicode.MarkdownParser;
 public class App 
 {
     public static final boolean isOnMacOS = System.getProperty("os.name").toLowerCase().contains("mac");
+    public static boolean isDisabled = false;
     static Toolkit toolkit = Toolkit.getDefaultToolkit();
     static ClipboardManager clipboardManager = new ClipboardManager(toolkit.getSystemClipboard());
     static RobotManager robotManager = new RobotManager();
@@ -39,6 +40,8 @@ public class App
      * convert the markdown, and paste it back into the textbox.
      */
     public static void startRobotConversion() {
+        System.out.println("App is " + isDisabled);
+        if (isDisabled) return;
         robotManager.robot.keyRelease(KeyEvent.VK_CONTROL);
         robotManager.robot.keyRelease(KeyEvent.VK_M);
 

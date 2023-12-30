@@ -1,33 +1,34 @@
 package com.ugackminer.unimark.tray;
 
 import java.awt.Image;
+import java.awt.MenuItem;
+import java.awt.MenuShortcut;
+import java.awt.PopupMenu;
 import java.awt.SystemTray;
 import java.awt.Toolkit;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import java.net.URL;
-import java.awt.PopupMenu;
-import java.awt.MenuItem;
 import java.awt.TrayIcon;
-import java.awt.AWTException;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import javax.swing.WindowConstants;
+import java.awt.event.KeyEvent;
+import java.net.URL;
 
-import javax.swing.UIManager;
+
+import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.imageio.ImageIO;
+import javax.swing.UIManager;
+import javax.swing.WindowConstants;
 
 import com.github.kwhat.jnativehook.GlobalScreen;
 import com.github.kwhat.jnativehook.NativeHookException;
 import com.github.kwhat.jnativehook.dispatcher.SwingDispatchService;
+import com.ugackminer.unimark.App;
 import com.ugackminer.unimark.robot.KeyboardListener;
-
-import javax.swing.JFrame;
 
 public class SystemTrayManager extends JFrame implements WindowListener {
     
     static final URL markdownImageURL = SystemTrayManager.class.getResource("/markdown-mark.png");
+    static final URL disabledMarkdownImageURL = SystemTrayManager.class.getResource("/markdown-mark-disabled.png");
 
     // SystemTray systemTray;
 
@@ -39,15 +40,28 @@ public class SystemTrayManager extends JFrame implements WindowListener {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception ex) {}
 
-        Image markdownImage = toolkit.getImage(markdownImageURL.getPath());
+        Image markdownImage = toolkit.getImage(markdownImageURL);
+        Image disabledMarkdownImage = toolkit.getImage(disabledMarkdownImageURL);
         PopupMenu popup = new PopupMenu();
 
-        MenuItem defaultItem = new MenuItem("Exit");
-        defaultItem.addActionListener(menuEntryCallback);
-        popup.add(defaultItem);
+        TrayIcon trayIcon = new TrayIcon(markdownImage, "Unimark", popup);
+        trayIcon.setImageAutoSize(true);
+        trayIcon.addActionListener(trayIconClickedCallback);
+
+        MenuItem disableItem = new MenuItem("Disable Unimark", new MenuShortcut(KeyEvent.VK_D));
+        disableItem.addActionListener(e -> {
+            App.isDisabled = !App.isDisabled;
+            ((MenuItem)e.getSource()).setLabel(App.isDisabled ? "Enable Unimark" : "Disable Unimark");
+            trayIcon.setImage(App.isDisabled ? disabledMarkdownImage : markdownImage);
+        });
+        popup.add(disableItem);
+
+        MenuItem exitItem = new MenuItem("Exit", new MenuShortcut(KeyEvent.VK_X));
+        exitItem.addActionListener(exitMenuEntryCallback);
+        popup.add(exitItem);
+
 
         try {
-            TrayIcon trayIcon = new TrayIcon(ImageIO.read(markdownImageURL), "Tray Demo", popup);
             SystemTray.getSystemTray().add(trayIcon);
         } catch (Exception e) {
             System.err.println(e);
@@ -58,15 +72,16 @@ public class SystemTrayManager extends JFrame implements WindowListener {
 		setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
 		addWindowListener(this);
         setIconImage(markdownImage);
-		setVisible(true);
+        
 
 
         JLabel label = new JLabel("Unimark");
         add(label);
+
+        startKeyboardHook();
     }
 
-    public void windowOpened(WindowEvent e) {
-        System.out.println("Windows opened");
+    private void startKeyboardHook() {
         try {
             GlobalScreen.registerNativeHook();
         } catch (NativeHookException err) {
@@ -78,8 +93,22 @@ public class SystemTrayManager extends JFrame implements WindowListener {
         GlobalScreen.addNativeKeyListener(new KeyboardListener());
     }
 
-    ActionListener menuEntryCallback = e -> {
-        System.exit(0);
+    public void windowOpened(WindowEvent e) {
+        System.out.println("Windows opened");
+
+    }
+
+    ActionListener disableMenuEntryCallback = e -> {
+        App.isDisabled = !App.isDisabled;
+        ((MenuItem)e.getSource()).setLabel(App.isDisabled ? "Enable Unimark" : "Disable Unimark");
+    };
+
+    ActionListener exitMenuEntryCallback = e -> {
+        windowClosed(null);
+    };
+
+    ActionListener trayIconClickedCallback = e -> {
+        setVisible(true);
     };
 
     public void windowClosing(WindowEvent e) { /* Unimplemented */ }
