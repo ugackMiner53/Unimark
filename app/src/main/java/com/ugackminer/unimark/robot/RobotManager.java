@@ -4,10 +4,9 @@ import java.awt.AWTException;
 import java.awt.Robot;
 import java.awt.event.KeyEvent;
 
-import com.ugackminer.unimark.App;
 
 public class RobotManager {
-    static final int modifierKey = App.isOnMacOS ? KeyEvent.VK_META : KeyEvent.VK_CONTROL;
+    public static final int modifierKey = System.getProperty("os.name").toLowerCase().contains("mac") ? KeyEvent.VK_META : KeyEvent.VK_CONTROL;
     public Robot robot;
 
     public RobotManager() {

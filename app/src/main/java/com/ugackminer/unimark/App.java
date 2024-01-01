@@ -1,40 +1,43 @@
 package com.ugackminer.unimark;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Transferable;
+import java.awt.AWTException;
 import java.awt.event.KeyEvent;
 
-import com.github.kwhat.jnativehook.GlobalScreen;
-import com.github.kwhat.jnativehook.NativeHookException;
+import javax.swing.SwingUtilities;
 
+import com.ugackminer.unimark.config.ConfigManager;
 import com.ugackminer.unimark.robot.ClipboardManager;
-import com.ugackminer.unimark.robot.KeyboardListener;
 import com.ugackminer.unimark.robot.RobotManager;
+import com.ugackminer.unimark.tray.SystemTrayManager;
 import com.ugackminer.unimark.unicode.MarkdownParser;
 
 
 public class App 
 {
-    public static final boolean isOnMacOS = System.getProperty("os.name").toLowerCase().contains("mac");
-    
+    public static ConfigManager configManager;
+    public static SystemTrayManager systemTrayManager;
     static Toolkit toolkit = Toolkit.getDefaultToolkit();
-
     static ClipboardManager clipboardManager = new ClipboardManager(toolkit.getSystemClipboard());
     static RobotManager robotManager = new RobotManager();
+    
+    static ScheduledExecutorService conversionService = Executors.newScheduledThreadPool(1);
+    static Transferable previousClipboardContent;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws AWTException {
         System.out.println(System.getProperty("os.name"));
-        
         try {
-            GlobalScreen.registerNativeHook();
-        } catch (NativeHookException err) {
-            System.err.println("The program could not register the native keybind hooking (jnativehook library issue)!");
-            System.err.println(err.getMessage());
-            System.exit(1);
+            configManager = ConfigManager.loadConfig();
+        } catch (Exception e) {
+            configManager = new ConfigManager();
         }
-
-        GlobalScreen.addNativeKeyListener(new KeyboardListener());
-        // SystemTrayManager systemTrayManager = new SystemTrayManager();
+        SwingUtilities.invokeLater(() -> {
+            systemTrayManager = new SystemTrayManager(toolkit);
+        });
     }
 
     /**
@@ -42,19 +45,23 @@ public class App
      * convert the markdown, and paste it back into the textbox.
      */
     public static void startRobotConversion() {
-        robotManager.robot.keyRelease(KeyEvent.VK_CONTROL);
-        robotManager.robot.keyRelease(KeyEvent.VK_M);
+        if (configManager.isDisabled) return;
+        for (int keycode : configManager.keyboardShortcut) {
+            robotManager.robot.keyRelease(keycode);
+        }
 
-        Transferable previousClipboardContent = clipboardManager.getClipboardTransferable();
-
+        App.previousClipboardContent = clipboardManager.getClipboardTransferable();
+        
         robotManager.pressShortcut(KeyEvent.VK_A);
         robotManager.pressShortcut(KeyEvent.VK_X);
 
-        App.startClipboardConversion();
-
-        robotManager.pressShortcut(KeyEvent.VK_V);
-
-        clipboardManager.setClipboardTransferable(previousClipboardContent);
+        conversionService.schedule(() -> {
+            App.startClipboardConversion();
+            robotManager.pressShortcut(KeyEvent.VK_V);
+            conversionService.schedule(() -> {
+                clipboardManager.setClipboardTransferable(App.previousClipboardContent);
+            }, 100, TimeUnit.MILLISECONDS);
+        }, 100, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -64,17 +71,12 @@ public class App
     public static void startClipboardConversion() {
         String clipboardText = clipboardManager.getClipboardText();
         String clipboardHtml = clipboardManager.getClipboardHtmlText();
-        System.out.println(clipboardHtml);
-        System.out.println(clipboardText);
-        System.out.println("");
+
         if (clipboardHtml != null && !clipboardHtml.equals(clipboardText))
             clipboardHtml = MarkdownParser.parseMarkdown(clipboardHtml);
         else
             clipboardHtml = clipboardText;
         clipboardText = MarkdownParser.parseMarkdown(clipboardText);
-        System.out.println(clipboardHtml);
-        System.out.println(clipboardText);
-        System.out.println("");
         clipboardManager.setClipboardText(clipboardHtml, clipboardText);
     }
 }

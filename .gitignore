@@ -7,3 +7,6 @@ bin
 
 # Ignore shortcodes (they should be downloaded on build)
 shortcodes.json
+
+# Ignore the config file
+unimark-config.json
