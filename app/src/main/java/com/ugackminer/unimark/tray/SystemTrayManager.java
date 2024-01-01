@@ -1,5 +1,7 @@
 package com.ugackminer.unimark.tray;
 
+import java.awt.Component;
+import java.awt.Font;
 import java.awt.Image;
 import java.awt.MenuItem;
 import java.awt.MenuShortcut;
@@ -7,21 +9,22 @@ import java.awt.PopupMenu;
 import java.awt.SystemTray;
 import java.awt.Toolkit;
 import java.awt.TrayIcon;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.awt.event.KeyEvent;
+import java.awt.event.ActionListener;
 import java.net.URL;
-import java.awt.Component;
-import java.awt.Font;
 
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JLabel;
 import javax.swing.BoxLayout;
-import javax.swing.UIManager;
 import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.UIManager;
 import javax.swing.WindowConstants;
+import javax.swing.JCheckBox;
 import javax.swing.border.EmptyBorder;
+
 
 import com.github.kwhat.jnativehook.GlobalScreen;
 import com.github.kwhat.jnativehook.NativeHookException;
@@ -34,11 +37,18 @@ public class SystemTrayManager extends JFrame implements WindowListener {
     static final URL markdownImageURL = SystemTrayManager.class.getResource("/markdown-mark.png");
     static final URL disabledMarkdownImageURL = SystemTrayManager.class.getResource("/markdown-mark-disabled.png");
 
-    // SystemTray systemTray;
+    Image markdownImage;
+    Image disabledMarkdownImage;
+
+    TrayIcon trayIcon;
+
     // Static labels and buttons
     JLabel shortcutLabel;
     JButton shortcutButton;
+    JLabel enabledTitle;
+    JButton isDisabledButton;
 
+    MenuItem disableItem;
 
 
     public SystemTrayManager(Toolkit toolkit) {
@@ -49,22 +59,24 @@ public class SystemTrayManager extends JFrame implements WindowListener {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception ex) {}
 
-        Image markdownImage = toolkit.getImage(markdownImageURL);
-        Image disabledMarkdownImage = toolkit.getImage(disabledMarkdownImageURL);
+        markdownImage = toolkit.getImage(markdownImageURL);
+        disabledMarkdownImage = toolkit.getImage(disabledMarkdownImageURL);
         PopupMenu popup = new PopupMenu();
 
-        TrayIcon trayIcon = new TrayIcon(App.configManager.isDisabled ? disabledMarkdownImage : markdownImage, "Unimark", popup);
+        trayIcon = new TrayIcon(markdownImage, "Unimark", popup);
         trayIcon.setImageAutoSize(true);
         trayIcon.addActionListener(e -> {
             setVisible(true);
         });
 
-        MenuItem disableItem = new MenuItem(App.configManager.isDisabled ? "Enable Unimark" : "Disable Unimark", new MenuShortcut(KeyEvent.VK_D));
-        disableItem.addActionListener(e -> {
-            App.configManager.isDisabled = !App.configManager.isDisabled;
-            ((MenuItem)e.getSource()).setLabel(App.configManager.isDisabled ? "Enable Unimark" : "Disable Unimark");
-            trayIcon.setImage(App.configManager.isDisabled ? disabledMarkdownImage : markdownImage);
+        MenuItem showConfigItem = new MenuItem("Show Config", new MenuShortcut(KeyEvent.VK_S));
+        showConfigItem.addActionListener(e -> {
+            setVisible(true);
         });
+        popup.add(showConfigItem);
+
+        disableItem = new MenuItem();
+        disableItem.addActionListener(toggleDisabledStatus);
         popup.add(disableItem);
 
         MenuItem exitItem = new MenuItem("Exit", new MenuShortcut(KeyEvent.VK_X));
@@ -81,18 +93,22 @@ public class SystemTrayManager extends JFrame implements WindowListener {
         }
 
         setTitle("Unimark Configuration Window");
-		setSize(300, 800);
-		setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
+		setSize(300, 350);
+		setDefaultCloseOperation(App.configManager.minimizeOnClose ? WindowConstants.HIDE_ON_CLOSE : WindowConstants.DISPOSE_ON_CLOSE);
+        
 		addWindowListener(this);
         setIconImage(markdownImage);
-        setVisible(true);
+        setVisible(App.configManager.showConfigOnStart);
 
         createPanelLayout();
+        updateDisabledButtons();
         updateKeyboardShortcutLabel();
         startKeyboardHook();
     }
 
     private void createPanelLayout() {
+
+        // Create the main panel and title
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
         mainPanel.setAlignmentX(TOP_ALIGNMENT);
@@ -104,16 +120,33 @@ public class SystemTrayManager extends JFrame implements WindowListener {
         label.setFont(new Font("Sans-Serif", Font.BOLD, 32));
         mainPanel.add(label);
 
+        // Create the enabled panel
+        JPanel enabledPanel = new JPanel();
+        enabledPanel.setLayout(new BoxLayout(enabledPanel, BoxLayout.Y_AXIS));
+        enabledPanel.setAlignmentY(CENTER_ALIGNMENT);
+        enabledPanel.setBorder(new EmptyBorder(32, 0, 0, 0));
+        mainPanel.add(enabledPanel);
 
+        enabledTitle = new JLabel();
+        enabledTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+        enabledTitle.setFont(new Font("Sans-Serif", Font.PLAIN, 16));
+        enabledPanel.add(enabledTitle);
+
+        isDisabledButton = new JButton();
+        isDisabledButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        isDisabledButton.addActionListener(toggleDisabledStatus);
+        enabledPanel.add(isDisabledButton);
+
+        // Create the keyboard shortcut panel
         JPanel shortcutPanel = new JPanel();
         shortcutPanel.setLayout(new BoxLayout(shortcutPanel, BoxLayout.Y_AXIS));
         shortcutPanel.setAlignmentY(CENTER_ALIGNMENT);
-        shortcutPanel.setBorder(new EmptyBorder(32, 0, 0, 0));
+        shortcutPanel.setBorder(new EmptyBorder(16, 0, 0, 0));
         mainPanel.add(shortcutPanel);
 
         JLabel shortcutTitle = new JLabel("Keyboard Shortcut");
         shortcutTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
-        shortcutTitle.setFont(new Font("Sans-Serif", Font.PLAIN, 12));
+        shortcutTitle.setFont(new Font("Sans-Serif", Font.PLAIN, 16));
         shortcutPanel.add(shortcutTitle);
 
         shortcutLabel = new JLabel();
@@ -131,6 +164,47 @@ public class SystemTrayManager extends JFrame implements WindowListener {
         });
         shortcutPanel.add(shortcutButton);
 
+        // Create the hide on close menu
+        JPanel settingsPanel = new JPanel();
+        settingsPanel.setLayout(new BoxLayout(settingsPanel, BoxLayout.Y_AXIS));
+        settingsPanel.setAlignmentY(CENTER_ALIGNMENT);
+        settingsPanel.setBorder(new EmptyBorder(16, 0, 0, 0));
+        mainPanel.add(settingsPanel);
+
+        JLabel settingsTitle = new JLabel("Settings");
+        settingsTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+        settingsTitle.setFont(new Font("Sans-Serif", Font.PLAIN, 16));
+        settingsPanel.add(settingsTitle);
+
+        JCheckBox closeBehavior = new JCheckBox("Minimize on Close");
+        closeBehavior.setAlignmentX(Component.CENTER_ALIGNMENT);
+        closeBehavior.setSelected(App.configManager.minimizeOnClose);
+        closeBehavior.addItemListener(e -> {
+            App.configManager.minimizeOnClose = closeBehavior.isSelected();
+            setDefaultCloseOperation(App.configManager.minimizeOnClose ? WindowConstants.HIDE_ON_CLOSE : WindowConstants.DISPOSE_ON_CLOSE);
+        });
+        settingsPanel.add(closeBehavior);
+
+        JCheckBox showConfigOnStart = new JCheckBox("Show Config When Opened");
+        showConfigOnStart.setAlignmentX(Component.CENTER_ALIGNMENT);
+        showConfigOnStart.setSelected(App.configManager.showConfigOnStart);
+        showConfigOnStart.addItemListener(e -> {
+            App.configManager.showConfigOnStart = showConfigOnStart.isSelected();
+        });
+        settingsPanel.add(showConfigOnStart);
+    }
+
+    ActionListener toggleDisabledStatus = e -> {
+        App.configManager.isDisabled = !App.configManager.isDisabled;
+        updateDisabledButtons();
+    };
+
+    public void updateDisabledButtons() {
+        String newLabel = App.configManager.isDisabled ? "Enable Unimark" : "Disable Unimark";
+        disableItem.setLabel(newLabel);
+        enabledTitle.setText(App.configManager.isDisabled ? "Currently Disabled" : "Currently Enabled");
+        isDisabledButton.setText(newLabel);
+        trayIcon.setImage(App.configManager.isDisabled ? disabledMarkdownImage : markdownImage);
     }
 
     public void updateKeyboardShortcutLabel() {
@@ -171,6 +245,7 @@ public class SystemTrayManager extends JFrame implements WindowListener {
     
 	public void windowClosed(WindowEvent e) {
 		//Clean up the native hook.
+        System.out.println("windows closed");
         try {
             GlobalScreen.unregisterNativeHook();
         } catch (NativeHookException ex) {

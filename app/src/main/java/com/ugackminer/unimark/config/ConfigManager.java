@@ -23,6 +23,8 @@ public class ConfigManager {
 
     public boolean isDisabled = false;
     public int[] keyboardShortcut = {RobotManager.modifierKey, KeyEvent.VK_M};
+    public boolean minimizeOnClose = true;
+    public boolean showConfigOnStart = true;
 
     public void saveConfig() {
         try {
@@ -38,7 +40,6 @@ public class ConfigManager {
             System.err.println(ex);
         }
     }
-
     
     public static ConfigManager loadConfig() throws FileNotFoundException, IOException {
         if (!configFile.exists())
@@ -53,11 +54,5 @@ public class ConfigManager {
 
         return previousConfig;        
     }
-
-
-
-
-
-
 
 }
