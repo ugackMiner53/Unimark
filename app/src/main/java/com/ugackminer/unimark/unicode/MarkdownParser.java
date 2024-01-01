@@ -12,6 +12,7 @@ public class MarkdownParser {
     static final Pattern strikethroughPattern = Pattern.compile("(?<!\\\\)~~.*?[^\\\\]~~");
     static final Pattern monospacePattern = Pattern.compile("(?<!\\\\)`.*?[^\\\\]`");
     static final Pattern cursivePattern = Pattern.compile("(?<!\\\\)~.*?[^\\\\]~");
+    static final Pattern escapePattern = Pattern.compile("\\\\\\S");
 
     static ShortcodeConverter shortcodeConverter = new ShortcodeConverter();
 
@@ -23,7 +24,9 @@ public class MarkdownParser {
         input = parsePattern(strikethroughPattern, input, UnicodeConverter::convertToStrikethrough, 2);
         input = parsePattern(monospacePattern, input, UnicodeConverter::convertToMonospace, 1);
         input = parsePattern(cursivePattern, input, UnicodeConverter::convertToCursive, 1);
+
         // Remove backslashes here
+        input = parsePattern(escapePattern, input, MarkdownParser::escapeCharacters);
         return input;
     }
 
@@ -56,6 +59,16 @@ public class MarkdownParser {
      */
     private static String parsePattern(Pattern pattern, String input, UnicodeMethod conversionFunction) {
         return parsePattern(pattern, input, conversionFunction, 0);
+    }
+
+
+    /**
+     * Internal method to remove the backslashes from escaped characters.
+     * @param text The text with a backslash to be removed "\?"
+     * @return The single character "?"
+     */
+    private static String escapeCharacters(String text) {
+        return text.substring(1);
     }
 }
 
