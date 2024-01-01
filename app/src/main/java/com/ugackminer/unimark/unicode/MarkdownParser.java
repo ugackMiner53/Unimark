@@ -12,6 +12,7 @@ public class MarkdownParser {
     static final Pattern strikethroughPattern = Pattern.compile("(?<!\\\\)~~.*?[^\\\\]~~");
     static final Pattern monospacePattern = Pattern.compile("(?<!\\\\)`.*?[^\\\\]`");
     static final Pattern cursivePattern = Pattern.compile("(?<!\\\\)~.*?[^\\\\]~");
+    
 
     static ShortcodeConverter shortcodeConverter = new ShortcodeConverter();
 

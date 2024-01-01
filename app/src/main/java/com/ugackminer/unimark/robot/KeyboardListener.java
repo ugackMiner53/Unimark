@@ -26,13 +26,13 @@ public class KeyboardListener extends SwingKeyAdapter
             return;
         }
 
-        if (event.getKeyCode() == App.keyboardShortcut[pressedHoldKeyIndex]) {
+        if (event.getKeyCode() == App.configManager.keyboardShortcut[pressedHoldKeyIndex]) {
             pressedHoldKeyIndex++;
         } else {
             pressedHoldKeyIndex = 0;
         }
 
-        if (pressedHoldKeyIndex == App.keyboardShortcut.length) {
+        if (pressedHoldKeyIndex == App.configManager.keyboardShortcut.length) {
             try {
                 App.startRobotConversion();
                 pressedHoldKeyIndex = 0;
@@ -54,7 +54,7 @@ public class KeyboardListener extends SwingKeyAdapter
             for (int i=0; i<newKeyboardShortcutArr.length; i++) {
                 newKeyboardShortcutArr[i] = newKeyboardShortcut.get(i);
             }
-            App.keyboardShortcut = newKeyboardShortcutArr;
+            App.configManager.keyboardShortcut = newKeyboardShortcutArr;
             newKeyboardShortcut = null;
             App.systemTrayManager.updateKeyboardShortcutLabel();
         }

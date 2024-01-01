@@ -7,7 +7,6 @@ import java.awt.PopupMenu;
 import java.awt.SystemTray;
 import java.awt.Toolkit;
 import java.awt.TrayIcon;
-import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.event.KeyEvent;
@@ -18,14 +17,11 @@ import java.awt.Font;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JLabel;
-import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.UIManager;
 import javax.swing.JButton;
 import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
-
-import org.intellij.lang.annotations.JdkConstants.BoxLayoutAxis;
 
 import com.github.kwhat.jnativehook.GlobalScreen;
 import com.github.kwhat.jnativehook.NativeHookException;
@@ -57,17 +53,17 @@ public class SystemTrayManager extends JFrame implements WindowListener {
         Image disabledMarkdownImage = toolkit.getImage(disabledMarkdownImageURL);
         PopupMenu popup = new PopupMenu();
 
-        TrayIcon trayIcon = new TrayIcon(markdownImage, "Unimark", popup);
+        TrayIcon trayIcon = new TrayIcon(App.configManager.isDisabled ? disabledMarkdownImage : markdownImage, "Unimark", popup);
         trayIcon.setImageAutoSize(true);
         trayIcon.addActionListener(e -> {
             setVisible(true);
         });
 
-        MenuItem disableItem = new MenuItem("Disable Unimark", new MenuShortcut(KeyEvent.VK_D));
+        MenuItem disableItem = new MenuItem(App.configManager.isDisabled ? "Enable Unimark" : "Disable Unimark", new MenuShortcut(KeyEvent.VK_D));
         disableItem.addActionListener(e -> {
-            App.isDisabled = !App.isDisabled;
-            ((MenuItem)e.getSource()).setLabel(App.isDisabled ? "Enable Unimark" : "Disable Unimark");
-            trayIcon.setImage(App.isDisabled ? disabledMarkdownImage : markdownImage);
+            App.configManager.isDisabled = !App.configManager.isDisabled;
+            ((MenuItem)e.getSource()).setLabel(App.configManager.isDisabled ? "Enable Unimark" : "Disable Unimark");
+            trayIcon.setImage(App.configManager.isDisabled ? disabledMarkdownImage : markdownImage);
         });
         popup.add(disableItem);
 
@@ -139,7 +135,7 @@ public class SystemTrayManager extends JFrame implements WindowListener {
 
     public void updateKeyboardShortcutLabel() {
         StringBuilder newLabel = new StringBuilder();
-        for (int keycode : App.keyboardShortcut) {
+        for (int keycode : App.configManager.keyboardShortcut) {
             newLabel.append(KeyEvent.getKeyText(keycode));
             newLabel.append(" + ");
         }
@@ -180,6 +176,7 @@ public class SystemTrayManager extends JFrame implements WindowListener {
         } catch (NativeHookException ex) {
             ex.printStackTrace();
         }
+        App.configManager.saveConfig();
 		System.runFinalization();
 		System.exit(0);
 	}

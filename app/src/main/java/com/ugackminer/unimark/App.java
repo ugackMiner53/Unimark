@@ -5,11 +5,12 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Transferable;
-import java.awt.event.KeyEvent;
 import java.awt.AWTException;
+import java.awt.event.KeyEvent;
 
 import javax.swing.SwingUtilities;
 
+import com.ugackminer.unimark.config.ConfigManager;
 import com.ugackminer.unimark.robot.ClipboardManager;
 import com.ugackminer.unimark.robot.RobotManager;
 import com.ugackminer.unimark.tray.SystemTrayManager;
@@ -18,11 +19,7 @@ import com.ugackminer.unimark.unicode.MarkdownParser;
 
 public class App 
 {
-    public static final boolean isOnMacOS = System.getProperty("os.name").toLowerCase().contains("mac");
-    public static boolean isDisabled = false;
-
-    public static int[] keyboardShortcut = {KeyEvent.VK_CONTROL, KeyEvent.VK_M};
-
+    public static ConfigManager configManager;
     public static SystemTrayManager systemTrayManager;
     static Toolkit toolkit = Toolkit.getDefaultToolkit();
     static ClipboardManager clipboardManager = new ClipboardManager(toolkit.getSystemClipboard());
@@ -33,6 +30,11 @@ public class App
 
     public static void main(String[] args) throws AWTException {
         System.out.println(System.getProperty("os.name"));
+        try {
+            configManager = ConfigManager.loadConfig();
+        } catch (Exception e) {
+            configManager = new ConfigManager();
+        }
         SwingUtilities.invokeLater(() -> {
             systemTrayManager = new SystemTrayManager(toolkit);
         });
@@ -43,8 +45,8 @@ public class App
      * convert the markdown, and paste it back into the textbox.
      */
     public static void startRobotConversion() {
-        if (isDisabled) return;
-        for (int keycode : keyboardShortcut) {
+        if (configManager.isDisabled) return;
+        for (int keycode : configManager.keyboardShortcut) {
             robotManager.robot.keyRelease(keycode);
         }
 

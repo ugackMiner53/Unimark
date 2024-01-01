@@ -26,6 +26,7 @@ public class ShortcodeConverter {
 
         try {
             this.shortcodeMap = adapter.fromJson(reader);
+            reader.close();
         } catch (IOException err) {
             this.shortcodeMap = new HashMap<String, String>();
             System.err.println(err);
