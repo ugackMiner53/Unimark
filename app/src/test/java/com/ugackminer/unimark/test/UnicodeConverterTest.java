@@ -61,6 +61,4 @@ public class UnicodeConverterTest {
         assertEquals("0͟1͟2͟3͟4͟5͟6͟7͟8͟9͟", UnicodeConverter.convertToUnderline(NUMERICAL_STRING));
         assertEquals(".͟?͟!͟@͟#͟$͟%͟^͟&͟*͟(͟)͟/͟❤͟😊͟", UnicodeConverter.convertToUnderline(SYMBOL_STRING));
     }
-
-
 }

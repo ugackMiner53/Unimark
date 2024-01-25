@@ -1,18 +1,6 @@
 package com.ugackminer.unimark.unicode;
 
 public class UnicodeConverter {
-    
-    /**
-     * Takes in a String and converts all special character types (bold, italic, etc.)
-     * into the regular text block.
-     * @param text The input String
-     * @return A String without fancy text.
-     */
-    public static String convertToASCII(String text) throws Exception {
-        throw new Exception("Method not implemented");
-        // return text;
-    }
-
     /**
      * Takes in a String and converts all alphanumeric characters 
      * to be in the {@code MATHEMATICAL BOLD SANS-SERIF} Unicode range ({@code U+1D622}/{@code U+1D6E2}).
@@ -30,7 +18,7 @@ public class UnicodeConverter {
             } else if (Character.isDigit(characters[i])) {
                 builder.append(Character.toChars(characters[i] + 0x1D7BC));
             } else if (((characterCode = text.codePointAt(i)) != 0) && (characterCode >= 0x1D608 && characterCode <= 0x1D63B)) { 
-                // If the integer chars at i in the string are between 𝘈 and 𝘻 then make it bold+italics
+                // If the integer chars at i in the string are between italic A and italic z then make it bold+italics
                 builder.append(Character.toChars(characterCode + 0x34));
                 i += Character.charCount(characterCode)-1;
             } else {
@@ -56,7 +44,7 @@ public class UnicodeConverter {
             if (Character.isAlphabetic(characters[i])) {
                 builder.append(Character.toChars(characters[i] + (0x1D5C1 + (Character.isUpperCase(characters[i]) ? 6 : 0))));
             } else if (((characterCode = text.codePointAt(i)) != 0) && (characterCode >= 0x1D5D4 && characterCode <= 0x1D607)) { 
-                // If the integer chars at i in the string are between 𝗔 and 𝘇 then make it bold+italics
+                // If the integer chars at i in the string are between bold A and bold z then make it bold+italics
                 builder.append(Character.toChars(characterCode + 0x68));
                 i += Character.charCount(characterCode)-1;
             } else {
@@ -65,10 +53,6 @@ public class UnicodeConverter {
         }
 
         return builder.toString();
-    }
-
-    public static String convertToBoldItalics() throws Exception {
-        throw new Exception("Not implemented");
     }
 
     /**
@@ -142,8 +126,6 @@ public class UnicodeConverter {
                         default:
                             builder.append(character);
                     }
-                    // The below line converts the cursive to the SCRIPT range, which works, but this has the wrong offset for some reason...
-                    // builder.append(Character.toChars(character + (0x1D48F + (Character.isUpperCase(character) ? 6 : 0))));
                 } else {
                     builder.append(Character.toChars(character + (0x1D455 + (Character.isUpperCase(character) ? 6 : 0))));
                 }
@@ -165,8 +147,6 @@ public class UnicodeConverter {
     public static String convertToUnderline(String text) {
         StringBuilder builder = new StringBuilder(text.length()*3);
 
-        // We may want to separate this logic into it's own method
-        // Constantly using the same code for unichar conversion is not great
         for (int i = 0; i < text.length();) {
             int character = text.codePointAt(i);
             builder.append(Character.toChars(character));

@@ -10,3 +10,6 @@ shortcodes.json
 
 # Ignore the config file
 unimark-config.json
+
+# Ignore duplicated license (COPYING) used when building
+app/**/COPYING

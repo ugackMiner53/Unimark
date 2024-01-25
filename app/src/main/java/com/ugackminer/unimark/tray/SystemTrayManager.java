@@ -1,6 +1,7 @@
 package com.ugackminer.unimark.tray;
 
 import java.awt.Component;
+import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Image;
 import java.awt.MenuItem;
@@ -12,6 +13,8 @@ import java.awt.TrayIcon;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.awt.event.ActionListener;
 import java.net.URL;
 
@@ -20,6 +23,8 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 import javax.swing.JCheckBox;
@@ -93,7 +98,7 @@ public class SystemTrayManager extends JFrame implements WindowListener {
         }
 
         setTitle("Unimark Configuration Window");
-		setSize(300, 350);
+		setSize(300, 375);
 		setDefaultCloseOperation(App.configManager.minimizeOnClose ? WindowConstants.HIDE_ON_CLOSE : WindowConstants.DISPOSE_ON_CLOSE);
         
 		addWindowListener(this);
@@ -192,6 +197,44 @@ public class SystemTrayManager extends JFrame implements WindowListener {
             App.configManager.showConfigOnStart = showConfigOnStart.isSelected();
         });
         settingsPanel.add(showConfigOnStart);
+
+        // Create the license and about pages
+        JPanel aboutPanel = new JPanel();
+        aboutPanel.setLayout(new BoxLayout(aboutPanel, BoxLayout.Y_AXIS));
+        aboutPanel.setAlignmentY(CENTER_ALIGNMENT);
+        aboutPanel.setBorder(new EmptyBorder(32, 0, 0, 0));
+        mainPanel.add(aboutPanel);
+
+        JButton license = new JButton("License");
+        license.setAlignmentX(Component.CENTER_ALIGNMENT);
+        license.addActionListener(e -> {
+            EventQueue.invokeLater(() -> {
+                try {
+                    JFrame frame = new JFrame("License");
+                    frame.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+                    frame.setIconImage(markdownImage);
+                    frame.setVisible(true);
+                    frame.setAlwaysOnTop(true);
+
+                    JPanel main = new JPanel();
+                    frame.add(main);
+
+                    JTextArea licenseText = new JTextArea();
+                    licenseText.read(new BufferedReader(new InputStreamReader(App.class.getResourceAsStream("/COPYING"))), null);
+                    licenseText.setEditable(false);
+
+                    JScrollPane scroll = new JScrollPane(licenseText, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+                    frame.add(scroll);
+
+
+                    frame.pack();
+                } catch (Exception err) {
+                    System.err.println("The COPYING file does not exist! This project requires the license text of the GNU GPL v3 found at https://www.gnu.org/licenses/gpl-3.0 to function!");
+                    System.exit(1);
+                }
+            });
+        });
+        aboutPanel.add(license);
     }
 
     ActionListener toggleDisabledStatus = e -> {

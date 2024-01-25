@@ -16,6 +16,11 @@ public class MarkdownParser {
 
     static ShortcodeConverter shortcodeConverter = new ShortcodeConverter();
 
+    /**
+     * A function that takes in a String, parses it, and runs it through all available Unicode convertters
+     * @param input A String to run conversion on
+     * @return The converted String
+     */
     public static String parseMarkdown(String input) {
         input = parsePattern(shortcodePattern, input, shortcodeConverter::convertShortcode, 1);
         input = parsePattern(boldPattern, input, UnicodeConverter::convertToBold, 2);

@@ -49,9 +49,14 @@ application {
     // Define the main class for the application.
     mainClass.set("com.ugackminer.unimark.App")
 
-    if (!File(sourceSets.main.get().getResources().getSrcDirs().iterator().next().getPath() + "/shortcodes.json").exists()) {
+    val resourcesDir = sourceSets.main.get().getResources().getSrcDirs().iterator().next().getPath();
+    if (!File(resourcesDir + "/shortcodes.json").exists()) {
         println("shortcodes.json does not exist!\nDownloading from emojibase...")
         updateShortcodes()
+    }
+    if (!File(resourcesDir + "/COPYING").exists()) {
+        println("GNU GPL v3 not found in resources directory!\nCopying...")
+        copyLicense()
     }
 }
 
@@ -67,7 +72,7 @@ tasks.named<Test>("test") {
 }
 
 fun updateShortcodes() {
-    val resourcesDir = sourceSets.main.get().getResources().getSrcDirs().iterator().next()
+    val resourcesDir = sourceSets.main.get().getResources().getSrcDirs().iterator().next();
     val sourceUrl = "https://raw.githubusercontent.com/milesj/emojibase/master/packages/data/en/shortcodes/emojibase.raw.json"
 
     val client = HttpClient.newBuilder().build();
@@ -93,8 +98,23 @@ fun updateShortcodes() {
     File(resourcesDir.getPath() + "/shortcodes.json").writeText(reversedShortcodesJson)
 }
 
+fun copyLicense() {
+    val resourcesDir = sourceSets.main.get().getResources().getSrcDirs().iterator().next();
+    if (File(project.rootProject.projectDir.getPath() + "/COPYING").exists()) {
+        File(project.rootProject.projectDir.getPath() + "/COPYING").copyTo(File(resourcesDir.getPath() + "/COPYING"))
+    } else {
+        println("The COPYING file does not exist! This project requires the license text of the GNU GPL v3 found at https://www.gnu.org/licenses/gpl-3.0 to function!")
+    }
+}
+
 tasks.register("updateShortcodes"){
     doLast {
         updateShortcodes()
+    }
+}
+
+tasks.register("copyLicense"){
+    doLast {
+        copyLicense()
     }
 }

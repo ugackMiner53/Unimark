@@ -20,6 +20,4 @@ public class ShortcodeTest {
         assertEquals("🏳️‍🌈", converter.convertShortcode("rainbow_flag"));
         assertEquals("⚧", converter.convertShortcode("transgender_symbol"));
     }
-
-
 }
