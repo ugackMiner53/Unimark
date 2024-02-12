@@ -15,7 +15,7 @@ Convert extended Markdown syntax into special Unicode characters that work anywh
 | Strikethrough | \~\~text\~\~ | t̶e̶x̶t̶ |
 | Underline | \_\_text\_\_ | t͟e͟x͟t͟ | 
 | Cursive | \~text\~ | 𝓉ℯ𝓍𝓉 |
-| Emoji | \:tada\: | 🎉 |
+| Emoji | \:‌tada‌\: | 🎉 |
 
 Press the global keybind (default <kbd>Ctrl</kbd>+<kbd>M</kbd>) in any application in order to have all text in the current input area converted!
 
